@@ -1,11 +1,10 @@
-FROM golang:1.14.1-alpine3.11 as builder
+# syntax = docker/dockerfile:experimental
+FROM ubuntu:18.04
 
-COPY ../main.go ./
+# gitをインストール
+RUN apt-get update && apt-get install -y git
 
-RUN go build -o /go-app ./main.go
-
-FROM alpine:3.11
-
-COPY --from=builder /go-app .
-
-ENTRYPOINT [ "./go-app" ]
+RUN --mount=type=ssh \
+    # github.comのための公開鍵をダウンロード
+    mkdir -p -m 0600 ~/.ssh && ssh-keyscan -H github.com >> ~/.ssh/known_hosts \
+    && git clone git@github.com:kajirita2002/docker_for_go.git
